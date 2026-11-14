@@ -1,0 +1,20 @@
+# Bezpečnost: nikdy necommitovat privátní klíče!
+*.key
+cosign.key
+
+# Velké obrazy a binárky
+*.iso
+*.iso-CHECKSUM
+*.tar
+*.gz
+*.qcow2
+
+# Systémové soubory
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,42 @@
+name: generate-cosign-keys
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-keys:
+    name: Generate Cosign Keypair
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.8.0
+
+      - name: Generate keypair
+        run: |
+          cosign generate-key-pair
+        env:
+          COSIGN_PASSWORD: ""
+
+      - name: Commit public key
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add cosign.pub
+          git commit -m "chore: automaticky přidat veřejný klíč cosign.pub" || echo "Žádná změna"
+          git push
+
+      - name: Output instructions for private key
+        run: |
+          echo "### 🔑 DŮLEŽITÉ: Uložení privátního klíče do Secrets" >> $GITHUB_STEP_SUMMARY
+          echo "Zkopírujte níže uvedený privátní klíč a vložte jej do:" >> $GITHUB_STEP_SUMMARY
+          echo "**Settings -> Secrets and variables -> Actions -> New repository secret**" >> $GITHUB_STEP_SUMMARY
+          echo "Název secretu: \`SIGNING_SECRET\`" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat cosign.key >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

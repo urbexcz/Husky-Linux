@@ -1,0 +1,75 @@
+name: husky-linux
+description: Husky Linux - deklarativní atomická distribuce (Fedora Kinoite, KDE Plasma, NVIDIA open drivers, gaming & dev)
+base-image: ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open
+image-version: latest
+
+modules:
+  - type: files
+    files:
+      - usr: /usr
+
+  # Jaderné moduly (ublue akmods) pro hardware
+  - type: akmods
+    install:
+      - openrazer
+
+  # Systémové balíčky vrstvené v obrazu (RPM)
+  - type: rpm-ostree
+    install:
+      # Corsair & Razer ovladače a daemony
+      - ckb-next
+      - openrazer-daemon
+
+      # Nástroje pro monitoring a optimalizaci GPU / her
+      - nvtop
+      - mangohud
+      - goverlay
+
+      # Streamování a zrcadlení obrazu na TV (server Sunshine s podporou NVENC)
+      - sunshine
+
+      # Vývoj a kontejnery (pro práci s Antigravity bez zanášení základního OS)
+      - distrobox
+
+      # Užitečné systémové utility pro daily driver
+      - btop
+      - fastfetch
+      - git
+      - zsh
+
+  # Automatická aktivace potřebných systémových služeb (daemons)
+  - type: systemd
+    system:
+      enabled:
+        - ckb-next-daemon.service
+
+  # Výchozí aplikace přes Flatpak (z Flathubu)
+  # Flatpak drží 32bitové knihovny a aplikace izolované od základního systému
+  - type: default-flatpaks
+    configurations:
+      - scope: system
+        notify: false
+        repo:
+          url: https://dl.flathub.org/repo/flathub.flatpakrepo
+          name: flathub
+          title: Flathub
+        install:
+          # Herní stack
+          - com.valvesoftware.Steam
+          - net.davidotek.pupgui2               # ProtonUp-Qt (správce GE-Protonu a Wine-GE)
+
+          # Správa oprávnění Flatpaků (klíčové pro povolení přístupu Steamu na další SSD/disky)
+          - com.github.tchx84.Flatseal
+
+          # NVIDIA a hardware utility
+          - com.leinardi.gwe                     # GreenWithEnvy (monitoring GPU, křivky ventilátorů, takty)
+          - com.dec05eba.gpu_screen_recorder     # GPU Screen Recorder (lehká hardwarová náhrada za NVIDIA ShadowPlay s NVENC)
+          - org.polychromatic.controller         # Polychromatic (grafické rozhraní pro správu myší a periferií Razer)
+          - org.openrgb.OpenRGB                  # OpenRGB (univerzální ovládání podsvícení)
+
+          # Zrcadlení a multimédia
+          - org.gnome.NetworkDisplays            # Miracast / Wi-Fi Display zrcadlení na chytrou TV
+          - org.videolan.VLC                     # Multimediální přehrávač se všemi kodeky
+
+  # Podepisování obrazu pro bezpečné atomické aktualizace
+  - type: signing
