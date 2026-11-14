@@ -98,8 +98,8 @@ modules:
           # org.openrgb.OpenRGB: Univerzální správce osvětlení – ovládá myši Razer i Corsair přímo přes USB bez nutnosti modulů jádra
           - org.openrgb.OpenRGB
 
-          # org.polychromatic.controller: Grafické rozhraní Polychromatic pro konfiguraci a správu periferií Razer
-          - org.polychromatic.controller
+          # app.polychromatic.controller: Grafické rozhraní Polychromatic pro konfiguraci a správu periferií Razer
+          - app.polychromatic.controller
 
           # dev.lizardbyte.app.Sunshine: Server pro streamování obrazu a her v 4K s minimální latencí a NVENC do aplikace Moonlight na TV
           - dev.lizardbyte.app.Sunshine
