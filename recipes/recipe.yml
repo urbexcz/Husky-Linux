@@ -1,46 +1,117 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 ---
+# Název výsledného obrazu v GitHub Container Registry (ghcr.io/urbexcz/husky-linux)
 name: husky-linux
-description: Husky Linux - deklarativní atomická distribuce (Fedora Kinoite, KDE Plasma, NVIDIA open drivers, gaming & dev)
+
+# Popis distribuce zobrazený v metadatech kontejneru
+description: Husky Linux - deklarativní atomická distribuce (Fedora Kinoite, KDE Plasma 6, NVIDIA open drivers, herní stack & dev)
+
+# Základní OCI obraz: Fedora Kinoite (KDE Plasma) s oficiálními otevřenými moduly NVIDIA pro RTX 4060
 base-image: ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open
+
+# Sledovaná verze základního obrazu (nejnovější stabilní stream)
 image-version: latest
 
 modules:
-  # Systémové balíčky vrstvené v obrazu přes moderní dnf modul pro bootc
+  # ============================================================================
+  # 1. SYSTÉMOVÉ BALÍČKY (přes moderní bootc správce DNF)
+  # Balíčky vpečené přímo do jádra operačního systému (/usr).
+  # ============================================================================
   - type: dnf
     install:
       packages:
+        # --- Hardware a periferie ---
+        # ckb-next: Ovladač a obslužný daemon pro klávesnice a myši Corsair (RGB, profily, makra)
         - ckb-next
-        - nvtop
+
+        # --- Herní optimalizace a ovladače ---
+        # steam-devices: Oficiální udev pravidla pro herní gamepady (Xbox, PS4/PS5 DualSense, Switch Pro, volanty)
+        # Bez tohoto balíčku by Steam ve Flatpaku nemusel správně detekovat připojené ovladače!
+        - steam-devices
+
+        # gamemode: Optimalizátor výkonu od Feral Interactive (dočasně přepne CPU na Performance, zvedne prioritu hry a GPU takty)
+        - gamemode
+
+        # gamescope: Mikro-kompozitor od Valve ze Steam Decku (umožňuje FSR upscaling, vynucení HDR, omezovač FPS a fix rozlišení)
+        - gamescope
+
+        # mangohud: Herní OSD překryvná vrstva (zobrazuje FPS, teploty CPU/GPU, využití VRAM a frametimes přímo ve hře)
         - mangohud
+
+        # goverlay: Grafické klikátko pro detailní nastavení a úpravu vzhledu MangoHudu
         - goverlay
-        - distrobox
+
+        # --- Monitoring a systémové utility ---
+        # nvtop: Textový interaktivní správce procesů pro grafické karty NVIDIA (obdoba htopu pro GPU)
+        - nvtop
+
+        # btop: Moderní, přehledný a graficky atraktivní terminálový monitor využití CPU, RAM, disků a sítě
         - btop
+
+        # fastfetch: Bleskurychlý nástroj pro zobrazení systémových informací a loga distribuce v terminálu
         - fastfetch
+
+        # --- Vývoj a kontejnery (Vibe coding) ---
+        # distrobox: Umožňuje spouštět libovolné distribuce (Arch, Ubuntu) v izolovaných kontejnerech pro vývoj s Antigravity
+        - distrobox
+
+        # git: Verzovací systém pro správu zdrojových kódů
         - git
+
+        # zsh: Pokročilý interaktivní příkazový shell
         - zsh
 
-  # Automatická aktivace systémových služeb (daemons)
+  # ============================================================================
+  # 2. SYSTÉMOVÉ SLUŽBY (Systemd daemons)
+  # Služby, které se mají automaticky spouštět při startu počítače.
+  # ============================================================================
   - type: systemd
     system:
       enabled:
+        # ckb-next-daemon.service: Služba na pozadí nutná pro komunikaci s hardwarem Corsair
         - ckb-next-daemon.service
 
-  # Výchozí aplikace přes Flatpak (z Flathubu)
+  # ============================================================================
+  # 3. VÝCHOZÍ UŽIVATELSKÉ APLIKACE (Flatpak z Flathubu)
+  # Aplikace izolované v sandboxu – neznečišťují systém 32bitovými knihovnami.
+  # ============================================================================
   - type: default-flatpaks
     configurations:
       - scope: system
         notify: false
         install:
+          # com.valvesoftware.Steam: Herní platforma Steam (izolovaná v sandboxu, šetří gigabajty systémového úložiště)
           - com.valvesoftware.Steam
+
+          # net.davidotek.pupgui2: ProtonUp-Qt (grafický správce pro snadné stahování a aktualizaci GE-Protonu a Wine-GE pro hry)
           - net.davidotek.pupgui2
+
+          # com.github.tchx84.Flatseal: Grafický správce oprávnění pro Flatpaky (např. povolení přístupu Steamu na vaše další SSD disky)
           - com.github.tchx84.Flatseal
+
+          # com.leinardi.gwe: GreenWithEnvy (plnohodnotná alternativa k NVIDIA App pro sledování teplot, taktování a křivky ventilátorů)
           - com.leinardi.gwe
+
+          # com.dec05eba.gpu_screen_recorder: Hardwarově akcelerovaný záznamník obrazu přes NVENC (lehká náhrada za NVIDIA ShadowPlay)
           - com.dec05eba.gpu_screen_recorder
+
+          # org.openrgb.OpenRGB: Univerzální správce osvětlení – ovládá myši Razer i Corsair přímo přes USB bez nutnosti modulů jádra
           - org.openrgb.OpenRGB
+
+          # org.polychromatic.controller: Grafické rozhraní Polychromatic pro konfiguraci a správu periferií Razer
+          - org.polychromatic.controller
+
+          # dev.lizardbyte.app.Sunshine: Server pro streamování obrazu a her v 4K s minimální latencí a NVENC do aplikace Moonlight na TV
           - dev.lizardbyte.app.Sunshine
+
+          # org.gnome.NetworkDisplays: Podpora pro bezdrátové zrcadlení obrazovky na chytrou televizi (Miracast / Wi-Fi Display)
           - org.gnome.NetworkDisplays
+
+          # org.videolan.VLC: Univerzální přehrávač videa a filmů s kompletní sadou vestavěných kodeků
           - org.videolan.VLC
 
-  # Podepisování obrazu pro bezpečné atomické aktualizace
+  # ============================================================================
+  # 4. KRYPTOGRAFICKÝ PODPIS OBRAZU
+  # Zajišťuje, že systém po instalaci přijme pouze aktualizace podepsané vaším klíčem Cosign.
+  # ============================================================================
   - type: signing
