@@ -8,6 +8,11 @@ on:
         default: "latest"
         required: true
         type: string
+      fedora_version:
+        description: "Verze Fedory (výchozí: 45)"
+        default: "45"
+        required: true
+        type: string
 
 jobs:
   build-iso:
@@ -33,7 +38,7 @@ jobs:
           image_name: husky-linux
           image_repo: ghcr.io/${{ github.repository_owner }}
           image_tag: ${{ github.event.inputs.image_tag }}
-          version: 41
+          version: ${{ github.event.inputs.fedora_version }}
           variant: Kinoite
           iso_name: husky-linux-${{ github.event.inputs.image_tag }}.iso
 
