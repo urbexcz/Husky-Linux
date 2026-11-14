@@ -1,0 +1,54 @@
+name: husky-linux
+description: Husky Linux - deklarativní atomická distribuce (Fedora Kinoite, KDE Plasma, NVIDIA open drivers, gaming & dev)
+base-image: ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open
+image-version: latest
+
+modules:
+  # Jaderné moduly (ublue akmods) pro hardware a udev pravidla
+  - type: akmods
+    install:
+      - openrazer
+      - openrgb
+
+  # Systémové balíčky vrstvené v obrazu (ověřené z oficiálních Fedora repozitářů)
+  - type: rpm-ostree
+    install:
+      # Corsair ovladač a daemon
+      - ckb-next
+
+      # Nástroje pro monitoring a optimalizaci GPU / her
+      - nvtop
+      - mangohud
+      - goverlay
+
+      # Vývoj a kontejnery (pro práci s Antigravity bez zásahu do systému)
+      - distrobox
+
+      # Užitečné systémové utility pro daily driver
+      - btop
+      - fastfetch
+      - git
+      - zsh
+
+  # Automatická aktivace systémových služeb (daemons)
+  - type: systemd
+    system:
+      enabled:
+        - ckb-next-daemon.service
+
+  # Výchozí aplikace přes Flatpak (z Flathubu)
+  - type: default-flatpaks
+    system:
+      - com.valvesoftware.Steam
+      - net.davidotek.pupgui2
+      - com.github.tchx84.Flatseal
+      - com.leinardi.gwe
+      - com.dec05eba.gpu_screen_recorder
+      - org.polychromatic.controller
+      - org.openrgb.OpenRGB
+      - dev.lizardbyte.sunshine
+      - org.gnome.NetworkDisplays
+      - org.videolan.VLC
+
+  # Podepisování obrazu pro bezpečné atomické aktualizace
+  - type: signing
