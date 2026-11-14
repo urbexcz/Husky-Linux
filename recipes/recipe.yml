@@ -6,11 +6,6 @@ base-image: ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open
 image-version: latest
 
 modules:
-  # Jaderné moduly (ublue akmods) pro hardware
-  - type: akmods
-    install:
-      - openrazer
-
   # Systémové balíčky vrstvené v obrazu (ověřené z oficiálních Fedora repozitářů)
   - type: rpm-ostree
     install:
@@ -48,7 +43,6 @@ modules:
           - com.github.tchx84.Flatseal
           - com.leinardi.gwe
           - com.dec05eba.gpu_screen_recorder
-          - org.polychromatic.controller
           - org.openrgb.OpenRGB
           - dev.lizardbyte.sunshine
           - org.gnome.NetworkDisplays
