@@ -6,25 +6,19 @@ base-image: ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open
 image-version: latest
 
 modules:
-  # Systémové balíčky vrstvené v obrazu (ověřené z oficiálních Fedora repozitářů)
-  - type: rpm-ostree
+  # Systémové balíčky vrstvené v obrazu přes moderní dnf modul pro bootc
+  - type: dnf
     install:
-      # Corsair ovladač a daemon
-      - ckb-next
-
-      # Nástroje pro monitoring a optimalizaci GPU / her
-      - nvtop
-      - mangohud
-      - goverlay
-
-      # Vývoj a kontejnery (pro práci s Antigravity bez zásahu do systému)
-      - distrobox
-
-      # Užitečné systémové utility pro daily driver
-      - btop
-      - fastfetch
-      - git
-      - zsh
+      packages:
+        - ckb-next
+        - nvtop
+        - mangohud
+        - goverlay
+        - distrobox
+        - btop
+        - fastfetch
+        - git
+        - zsh
 
   # Automatická aktivace systémových služeb (daemons)
   - type: systemd
