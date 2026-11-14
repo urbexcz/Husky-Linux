@@ -38,7 +38,7 @@ modules:
           - com.leinardi.gwe
           - com.dec05eba.gpu_screen_recorder
           - org.openrgb.OpenRGB
-          - dev.lizardbyte.sunshine
+          - dev.lizardbyte.app.Sunshine
           - org.gnome.NetworkDisplays
           - org.videolan.VLC
 
