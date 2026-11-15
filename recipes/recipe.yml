@@ -110,6 +110,9 @@ modules:
           # org.videolan.VLC: Univerzální přehrávač videa a filmů s kompletní sadou vestavěných kodeků
           - org.videolan.VLC
 
+          # io.github.flattool.Warehouse: Pokročilý správce a čistič Flatpak aplikací (správa verzí, uvolnění místa na disku)
+          - io.github.flattool.Warehouse
+
   # ============================================================================
   # 4. KRYPTOGRAFICKÝ PODPIS OBRAZU
   # Zajišťuje, že systém po instalaci přijme pouze aktualizace podepsané vaším klíčem Cosign.
