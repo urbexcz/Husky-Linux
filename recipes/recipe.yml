@@ -39,7 +39,6 @@ modules:
           - com.dec05eba.gpu_screen_recorder
           - org.openrgb.OpenRGB
           - app.polychromatic.controller
-          - dev.lizardbyte.app.Sunshine
           - org.gnome.NetworkDisplays
           - org.videolan.VLC
           - io.github.flattool.Warehouse
