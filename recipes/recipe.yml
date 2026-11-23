@@ -11,10 +11,15 @@ modules:
       cleanup: true
       copr:
         - ilyaz/LACT
+      files:
+        - https://raw.githubusercontent.com/terrapkg/subatomic-repos/main/terra.repo
     install:
       packages:
         - ckb-next
         - lact
+        - gpu-screen-recorder
+        - gpu-screen-recorder-gtk
+        - gnome-network-displays
         - steam-devices
         - gamemode
         - gamescope
@@ -68,10 +73,7 @@ modules:
           - org.freedesktop.Platform.VulkanLayer.gamescope//26.08
           - net.davidotek.pupgui2
           - com.github.tchx84.Flatseal
-          - com.dec05eba.gpu_screen_recorder
-          - org.openrgb.OpenRGB
           - app.polychromatic.controller
-          - org.gnome.NetworkDisplays
           - org.videolan.VLC
           - io.github.flattool.Warehouse
 

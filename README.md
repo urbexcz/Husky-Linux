@@ -3,15 +3,17 @@
 Vlastní deklarativní atomická distribuce založená na **Fedora 44 Kinoite (KDE Plasma 6)** a frameworku **BlueBuild**, optimalizovaná pro maximální stabilitu (*nainstaluj a zapomeň*):
 
 * **Stabilní větev (Fedora 44 / GTS):** Připnuto na prověřenou Fedoru 44 (žádné nečekané noční přeskoky na čerstvě vydané verze, ale pravidelné denní bezpečnostní a ovladačové aktualizace).
-* **Grafická karta:** NVIDIA GeForce RTX 4060 (Ada Lovelace) s otevřenými jadernými moduly (`nvidia-open`), multimediálními kodeky a vyladěným režimem spánku (`NVreg_PreserveVideoMemoryAllocations=1`).
-* **Správa GPU na Waylandu:** **LACT** (moderní náhrada za ukončené GreenWithEnvy – křivky ventilátorů, limity napájení, takty, teploty nativně na Waylandu) + `nvtop` + **GPU Screen Recorder** (NVENC).
-* **Gaming:** Steam (Flatpak) s odpovídajícími Flatpak Vulkan vrstvami **MangoHud** a **Gamescope** (`//26.08`), hostitelský **GameMode**, `steam-devices`, **GOverlay** a **ProtonUp-Qt**.
-* **Hardware & periferie:**
+* **Grafická karta:** NVIDIA GeForce RTX 4060 (Ada Lovelace) s otevřenými jadernými moduly (`nvidia-open`), multimediálními kodeky (`negativo17`) a vyladěným režimem spánku (`NVreg_PreserveVideoMemoryAllocations=1`).
+* **Správa GPU a záznam obrazu nativně v OS (RPM):**
+  * **LACT** (`lact` + `lactd.service`) – křivky ventilátorů, limity spotřeby, takty a monitoring nativně na Waylandu.
+  * **GPU Screen Recorder** (`gpu-screen-recorder` + `gpu-screen-recorder-gtk` z Terra F44) – nativní RPM s oprávněním `cap_sys_admin` pro přímý KMS záznam bez dialogů a plný **AV1 NVENC** na RTX 4060.
+  * `nvtop` – rychlý terminálový monitoring GPU.
+* **Gaming:** Steam (Flatpak) s přesně sladěnými Flatpak Vulkan vrstvami **MangoHud** a **Gamescope** (`//26.08` + auto-sync v `blujust husky-setup`), hostitelský **GameMode**, `steam-devices`, **GOverlay** a **ProtonUp-Qt**.
+* **Hardware & periferie (0 RGB konfliktů):**
   * **Corsair:** `ckb-next` + automaticky aktivovaná služba `ckb-next-daemon.service`.
-  * **Razer (DeathAdder V2 Pro):** Jaderné moduly `kmod-openrazer` zkompilované přímo proti přesné verzi jádra + `openrazer-daemon` + grafické centrum **Polychromatic**.
-  * **Univerzální RGB:** **OpenRGB** + systémová `openrgb-udev-rules` (v základu obrazu).
-* **Vývoj a kontejnery:** `distrobox`, `git`, `zsh`, `btop`, `fastfetch`.
-* **Multimédia:** VLC, GNOME Network Displays (Miracast), Flatseal, Warehouse.
+  * **Razer (DeathAdder V2 Pro):** Jaderné moduly `kmod-openrazer` zkompilované přímo proti přesné verzi jádra a **podepsané vlastním MOK klíčem pro Secure Boot** + `openrazer-daemon` + grafické centrum **Polychromatic**.
+* **Vývoj a kontejnery:** `distrobox`, `git`, `zsh`, `btop`, `fastfetch` + příkaz `blujust husky-dev`.
+* **Multimédia:** **GNOME Network Displays** (nativní Fedora 44 RPM pro Miracast), VLC, Flatseal, Warehouse.
 
 ---
 
@@ -20,22 +22,23 @@ Vlastní deklarativní atomická distribuce založená na **Fedora 44 Kinoite (K
 * **Základní OCI obraz:** `ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open:44`
 * **Desktopové prostředí:** KDE Plasma 6 (Wayland)
 * **Aktualizace:** Automatické na pozadí (`bootc-fetch-apply-updates.timer` + `flatpak-system-updates.timer`), ručně přes `sudo bootc upgrade` (nebo `rpm-ostree upgrade`) a `flatpak update`.
-* **Podepisování:** Každý obraz je kryptograficky podepsán klíčem **Cosign** (`cosign.pub`).
+* **Podepisování:** Kontejner podepsán klíčem **Cosign** (`cosign.pub`); jaderné moduly podepsány klíči **BlueBuild MOK** (NVIDIA) a **Husky Linux MOK** (OpenRazer).
 
 ---
 
-## 🛠️ Krok po první instalaci (jediný příkaz)
+## 🛠️ Krok po první instalaci
 
-Po prvním přihlášení do systému otevřete terminál a spusťte připravený pomocný příkaz:
+Po prvním přihlášení do systému otevřete terminál a spusťte:
 
 ```bash
 blujust husky-setup
 ```
 
 Tento jediný příkaz automaticky:
-1. Přidá váš účet do skupiny `plugdev` (oprávnění pro myš Razer / OpenRazer) a `i2c` (OpenRGB).
+1. Přidá váš účet do skupiny `plugdev` (oprávnění pro myš Razer / OpenRazer).
 2. Propojí Steam (Flatpak) s konfigurací `~/.config/MangoHud` z programu **GOverlay**.
-3. Spustí uživatelskou službu `openrazer-daemon.service`.
+3. Automaticky ověří aktuální runtime Steamu a sladí k němu vrstvy **MangoHud** a **Gamescope**.
+4. Aktivuje uživatelskou službu `openrazer-daemon.service`.
 
 Poté se odhlaste a znovu přihlaste (nebo restartujte PC).
 
@@ -51,15 +54,11 @@ Po restartu PC se zobrazí modrá obrazovka *MokManager*:
 2. Zadejte heslo **`bluebuild`** *(stejné na české i anglické klávesnici – neobsahuje Y ani Z)*.
 3. Zvolte **Reboot**.
 
-Po tomto jednom restartu běží **Secure Boot, NVIDIA RTX 4060 i OpenRazer (Razer DeathAdder V2 Pro)** plnohodnotně a bez omezení.
-
-### Další volitelné příkazy
-* **Miracast (GNOME Network Displays):** Pokud používáte bezdrátové zrcadlení na TV přes Wi-Fi Direct, povolte jednorázově porty ve firewallu:
-  ```bash
-  blujust husky-miracast-firewall
-  ```
-* **Další disky pro Steam:** Otevřete aplikaci **Flatseal** → **Steam** → **Filesystem** a přidejte cestu k vašemu hernímu SSD.
-* **Kdyby se po aktualizaci nenačetl nový Flatpak:** Spusťte `bluebuild-flatpak-manager` (systém nově zobrazuje desktopová oznámení při automatické instalaci Flatpaků).
+### Další pomocné příkazy `blujust`
+* **Přidání dalšího SSD do Steamu:** `blujust husky-steam-disk /cesta/k/disku` (nebo graficky ve Flatsealu).
+* **Vývojový kontejner s NVIDIA akcelerací:** `blujust husky-dev`.
+* **Miracast firewall (GNOME Network Displays):** `blujust husky-miracast-firewall`.
+* **Ruční synchronizace Flatpaků po aktualizaci:** `bluebuild-flatpak-manager`.
 
 ---
 
