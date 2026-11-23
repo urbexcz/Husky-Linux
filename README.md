@@ -3,7 +3,7 @@
 Vlastní deklarativní atomická distribuce založená na **Fedora 44 Kinoite (KDE Plasma 6)** a frameworku **BlueBuild**, optimalizovaná pro maximální stabilitu (*nainstaluj a zapomeň*):
 
 * **Stabilní větev (Fedora 44 / GTS):** Připnuto na prověřenou Fedoru 44 (žádné nečekané noční přeskoky na čerstvě vydané verze, ale pravidelné denní bezpečnostní a ovladačové aktualizace).
-* **Grafická karta:** NVIDIA GeForce RTX 4060 (Ada Lovelace) s otevřenými jadernými moduly (`nvidia-open`), multimediálními kodeky a vyladěným režimem spánku (`NVreg_PreserveVideoMemoryAllocations=1` + `nvidia-suspend`/`resume`/`hibernate`).
+* **Grafická karta:** NVIDIA GeForce RTX 4060 (Ada Lovelace) s otevřenými jadernými moduly (`nvidia-open`), multimediálními kodeky a vyladěným režimem spánku (`NVreg_PreserveVideoMemoryAllocations=1`).
 * **Správa GPU na Waylandu:** **LACT** (moderní náhrada za ukončené GreenWithEnvy – křivky ventilátorů, limity napájení, takty, teploty nativně na Waylandu) + `nvtop` + **GPU Screen Recorder** (NVENC).
 * **Gaming:** Steam (Flatpak) s odpovídajícími Flatpak Vulkan vrstvami **MangoHud** a **Gamescope** (`//26.08`), hostitelský **GameMode**, `steam-devices`, **GOverlay** a **ProtonUp-Qt**.
 * **Hardware & periferie:**

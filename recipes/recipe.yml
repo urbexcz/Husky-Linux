@@ -46,9 +46,6 @@ modules:
       enabled:
         - ckb-next-daemon.service
         - lactd.service
-        - nvidia-suspend.service
-        - nvidia-hibernate.service
-        - nvidia-resume.service
     user:
       enabled:
         - openrazer-daemon.service
