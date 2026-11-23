@@ -69,7 +69,6 @@ modules:
         - ckb-next-daemon.service
         - lactd.service
         - initial-setup.service
-        - initial-setup-graphical.service
     user:
       enabled:
         - openrazer-daemon.service
