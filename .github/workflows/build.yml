@@ -40,8 +40,20 @@ jobs:
             echo "::error::Chybí GitHub Secret MOK_PRIVATE_KEY nutný pro podepsání OpenRazer modulů pro Secure Boot!"
             exit 1
           fi
-          printf '%s' "${MOK_PRIVATE_KEY}" | base64 -d > MOK.priv
+          if printf '%s' "${MOK_PRIVATE_KEY}" | grep -q "BEGIN.*PRIVATE KEY"; then
+            printf '%s\n' "${MOK_PRIVATE_KEY}" | tr -d '\r' > MOK.priv
+          else
+            printf '%s' "${MOK_PRIVATE_KEY}" | tr -d '[:space:]' | base64 -d > MOK.priv
+          fi
           chmod 600 MOK.priv
+          openssl pkey -in MOK.priv -noout
+          PUB_FROM_PRIV="$(openssl pkey -in MOK.priv -pubout | openssl sha256)"
+          PUB_FROM_DER="$(openssl x509 -inform DER -in files/system/etc/pki/akmods/certs/husky-mok.der -pubkey -noout | openssl sha256)"
+          if [ "${PUB_FROM_PRIV}" != "${PUB_FROM_DER}" ]; then
+            echo "::error::MOK_PRIVATE_KEY neodpovídá veřejnému certifikátu husky-mok.der!"
+            exit 1
+          fi
+          echo "MOK private key verified against husky-mok.der!"
 
       - name: Build and Push Custom Image
         uses: blue-build/github-action@v1.14.0
