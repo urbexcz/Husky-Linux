@@ -1,15 +1,20 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 ---
 name: husky-linux
-description: Husky Linux - deklarativní atomická distribuce (Fedora Kinoite, KDE Plasma 6, NVIDIA open drivers, herní stack & dev)
+description: Husky Linux - stabilní atomická distribuce (Fedora 44 Kinoite, KDE Plasma 6, NVIDIA open drivers, gaming & dev)
 base-image: ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open
-image-version: latest
+image-version: 44
 
 modules:
   - type: dnf
+    repos:
+      cleanup: true
+      copr:
+        - ilyaz/LACT
     install:
       packages:
         - ckb-next
+        - lact
         - steam-devices
         - gamemode
         - gamescope
@@ -22,20 +27,42 @@ modules:
         - git
         - zsh
 
+  - type: script
+    scripts:
+      - install-openrazer.sh
+
+  - type: files
+    files:
+      - source: system
+        destination: /
+
+  - type: justfiles
+    validate: true
+    include:
+      - 60-husky.just
+
   - type: systemd
     system:
       enabled:
         - ckb-next-daemon.service
+        - lactd.service
+        - nvidia-suspend.service
+        - nvidia-hibernate.service
+        - nvidia-resume.service
+    user:
+      enabled:
+        - openrazer-daemon.service
 
   - type: default-flatpaks
     configurations:
       - scope: system
-        notify: false
+        notify: true
         install:
           - com.valvesoftware.Steam
+          - org.freedesktop.Platform.VulkanLayer.MangoHud//26.08
+          - org.freedesktop.Platform.VulkanLayer.gamescope//26.08
           - net.davidotek.pupgui2
           - com.github.tchx84.Flatseal
-          - com.leinardi.gwe
           - com.dec05eba.gpu_screen_recorder
           - org.openrgb.OpenRGB
           - app.polychromatic.controller

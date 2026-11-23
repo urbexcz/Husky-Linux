@@ -1,94 +1,60 @@
 # 🐺 Husky Linux
 
-Vlastní deklarativní atomická distribuce založená na **Fedora Kinoite (KDE Plasma)** a frameworku **BlueBuild**, optimalizovaná pro:
-* **Grafickou kartu:** NVIDIA GeForce RTX 4060 (architektura Ada Lovelace) s moderními otevřenými moduly jádra (`nvidia-open`).
-* **Denní použití (Daily Driver):** Stabilní systém typu *„nainstaluj a zapomeň“* – root souborového systému je pouze pro čtení (read-only, immutable).
-* **Gaming:** Steam, MangoHud, Goverlay, ProtonUp-Qt.
-* **Hardware & periferie:** Ovladače pro Corsair (`ckb-next`), Razer (`openrazer` + `polychromatic`), univerzální RGB (`OpenRGB`).
-* **NVIDIA Suite:** Monitorování a správa ventilátorů (`GreenWithEnvy`), hardwarový záznam her s NVENC (`GPU Screen Recorder` – náhrada za NVIDIA ShadowPlay).
-* **Multimédia & TV:** Zrcadlení obrazu na TV přes **Sunshine** (NVENC streamování do aplikace Moonlight na TV) i **Gnome Network Displays** (Miracast).
-* **Vývoj (Vibe coding):** Distrobox & Podman pro čistá vývojová prostředí (např. Antigravity IDE) bez zásahu do hostitelského systému.
+Vlastní deklarativní atomická distribuce založená na **Fedora 44 Kinoite (KDE Plasma 6)** a frameworku **BlueBuild**, optimalizovaná pro maximální stabilitu (*nainstaluj a zapomeň*):
+
+* **Stabilní větev (Fedora 44 / GTS):** Připnuto na prověřenou Fedoru 44 (žádné nečekané noční přeskoky na čerstvě vydané verze, ale pravidelné denní bezpečnostní a ovladačové aktualizace).
+* **Grafická karta:** NVIDIA GeForce RTX 4060 (Ada Lovelace) s otevřenými jadernými moduly (`nvidia-open`), multimediálními kodeky a vyladěným režimem spánku (`NVreg_PreserveVideoMemoryAllocations=1` + `nvidia-suspend`/`resume`/`hibernate`).
+* **Správa GPU na Waylandu:** **LACT** (moderní náhrada za ukončené GreenWithEnvy – křivky ventilátorů, limity napájení, takty, teploty nativně na Waylandu) + `nvtop` + **GPU Screen Recorder** (NVENC).
+* **Gaming:** Steam (Flatpak) s odpovídajícími Flatpak Vulkan vrstvami **MangoHud** a **Gamescope** (`//26.08`), hostitelský **GameMode**, `steam-devices`, **GOverlay** a **ProtonUp-Qt**.
+* **Hardware & periferie:**
+  * **Corsair:** `ckb-next` + automaticky aktivovaná služba `ckb-next-daemon.service`.
+  * **Razer (DeathAdder V2 Pro):** Jaderné moduly `kmod-openrazer` zkompilované přímo proti přesné verzi jádra + `openrazer-daemon` + grafické centrum **Polychromatic**.
+  * **Univerzální RGB:** **OpenRGB** + systémová `openrgb-udev-rules` (v základu obrazu).
+* **Vývoj a kontejnery:** `distrobox`, `git`, `zsh`, `btop`, `fastfetch`.
+* **Multimédia:** VLC, GNOME Network Displays (Miracast), Flatseal, Warehouse.
 
 ---
 
 ## 🏗️ Architektura systému
 
-* **Základní OCI obraz:** `ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open:latest`
-* **Desktopové prostředí:** KDE Plasma 6 (Wayland s nativní podporou NVIDIA Explicit Sync)
-* **Balíčkovací strategie:**
-  * **Základ OS (RPM-ostree / Akmods):** Pouze hardware ovladače, daemony a systémové utility (`ckb-next`, `openrazer`, `sunshine`, `distrobox`, `nvtop`, `btop`).
-  * **Aplikace (Flatpak / Flathub):** Veškeré uživatelské programy a herní stack (Steam, VLC, Flatseal, GWE) běží v izolovaných kontejnerech. Díky tomu zůstává jádro distribuce 100% čisté a nezpomaluje se 32bitovými knihovnami.
+* **Základní OCI obraz:** `ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open:44`
+* **Desktopové prostředí:** KDE Plasma 6 (Wayland)
+* **Aktualizace:** Automatické na pozadí (`bootc-fetch-apply-updates.timer` + `flatpak-system-updates.timer`), ručně přes `sudo bootc upgrade` (nebo `rpm-ostree upgrade`) a `flatpak update`.
+* **Podepisování:** Každý obraz je kryptograficky podepsán klíčem **Cosign** (`cosign.pub`).
 
 ---
 
-## 🚀 Jak poprvé zprovoznit repozitář na GitHubu
+## 🛠️ Krok po první instalaci (jediný příkaz)
 
-### 1. Vytvoření repozitáře na GitHubu
-1. Otevřete [github.com/new](https://github.com/new).
-2. Pojmenujte repozitář: `Husky-Linux`.
-3. Nastavte jej jako **Public** (aby GitHub Actions mohl publikovat kontejner do GitHub Container Registry).
-4. **Nezaklikávejte** „Add a README file“ ani šablony (repozitář nechte prázdný).
-5. Klikněte na **Create repository**.
+Po prvním přihlášení do systému otevřete terminál a spusťte připravený pomocný příkaz:
 
-### 2. Odeslání (Push) souborů z vašeho PC
-V terminálu (PowerShell) v této složce spusťte:
-```powershell
-git init -b main
-git add .
-git commit -m "feat: initial Husky Linux configuration"
-git remote add origin https://github.com/urbexcz/Husky-Linux.git
-git push -u origin main
-```
-
-### 3. Nastavení podpisových klíčů (Cosign) – jedním kliknutím
-Pro podepisování vašeho kontejneru je v repozitáři připravený automatický workflow:
-1. Na GitHubu jděte do záložky **Actions**.
-2. V levém menu klikněte na **generate-cosign-keys**.
-3. Klikněte na **Run workflow** -> **Run workflow**.
-4. Po dokončení:
-   * Workflow automaticky commitne veřejný klíč `cosign.pub` do vašeho repozitáře.
-   * V detailu běhu (záložka **Summary**) se vám zobrazí privátní klíč.
-5. Zkopírujte privátní klíč a uložte jej do:
-   **Settings -> Secrets and variables -> Actions -> New repository secret**
-   * Name: `SIGNING_SECRET`
-   * Secret: *(vložte obsah privátního klíče)*
-
----
-
-## 💿 Sestavení obrazu a instalačního ISO
-
-1. **Stavba obrazu OS:**
-   * Po uložení `SIGNING_SECRET` se v záložce **Actions** automaticky spustí workflow **build-husky-linux** (případně ho můžete spustit ručně tlačítkem *Run workflow*).
-   * Obraz se zkompiluje a nahraje do vašeho GitHub Container Registry pod adresou:
-     `ghcr.io/urbexcz/husky-linux:latest`
-
-2. **Generování instalačního ISO:**
-   * Jakmile je obraz zkompilován, v záložce **Actions** vyberte **build-husky-iso** a klikněte na **Run workflow**.
-   * Během cca 10–15 minut se vytvoří bootovatelné ISO.
-   * Výsledný soubor `husky-linux-latest.iso` si stáhnete přímo ze sekce **Artifacts** na stránce daného běhu.
-
-3. **Nahrání na USB flashdisk:**
-   * Použijte **Fedora Media Writer**, **BalenaEtcher** nebo **Rufus** (režim DD) a nahrajte stažené `.iso` na flashku.
-
----
-
-## 🛠️ Důležité kroky po první instalaci
-
-### 1. Přístup k myši Razer (skupina plugdev)
-Aby aplikace Polychromatic nebo OpenRGB mohly komunikovat s hardwarem myši Razer, přidejte svůj uživatelský účet do systémové skupiny `plugdev`:
 ```bash
-sudo gpasswd -a $USER plugdev
+blujust husky-setup
 ```
-Poté se odhlašte a znovu přihlaste (nebo restartujte PC).
 
-### 2. Steam a dodatečné disky (SSD/HDD)
-Protože Steam běží jako bezpečný Flatpak, přístup k dalším interním diskům můžete povolit jedním kliknutím:
-1. Otevřete aplikaci **Flatseal**.
-2. Vlevo vyberte **Steam**.
-3. V sekci **Filesystem** (Souborový systém) přidejte cestu k vašemu disku (např. `/mnt/games` nebo `/run/media/...`).
+Tento jediný příkaz automaticky:
+1. Přidá váš účet do skupiny `plugdev` (oprávnění pro myš Razer / OpenRazer) a `i2c` (OpenRGB).
+2. Propojí Steam (Flatpak) s konfigurací `~/.config/MangoHud` z programu **GOverlay**.
+3. Spustí uživatelskou službu `openrazer-daemon.service`.
 
-### 3. Zrcadlení na TV (Sunshine & Moonlight)
-V systému je předinstalován server **Sunshine**:
-* Webová administrace běží na: `https://localhost:47990`
-* Na televizi (Android TV, Apple TV, LG webOS, Samsung Tizen) si nainstalujte klienta **Moonlight**.
-* Spárujte zadáním PINu – díky grafice RTX 4060 získáte streamování plochy a her v 4K s bleskovou odezvou a kódováním NVENC.
+Poté se odhlaste a znovu přihlaste (nebo restartujte PC).
+
+### Poznámka k Secure Bootu (pokud jej máte zapnutý kvůli Windows 11)
+* Pro zavedení podepsaného ovladače **NVIDIA** spusťte jednou `blujust enroll-secure-boot-key` a po restartu v modrém menu *MokManager* zadejte heslo **`bluebuild`**.
+* **Upozornění k OpenRazeru:** Lokálně zkompilovaný jaderný modul `kmod-openrazer` není podepsaný klíčem BlueBuild. Se **vypnutým Secure Bootem** funguje vše ihned bez omezení; se zapnutým Secure Bootem jádro nepodepsaný modul OpenRazeru odmítne zavést (myš funguje jako standardní USB HID, ale Polychromatic ji neuvidí).
+
+### Další volitelné příkazy
+* **Miracast (GNOME Network Displays):** Pokud používáte bezdrátové zrcadlení na TV přes Wi-Fi Direct, povolte jednorázově porty ve firewallu:
+  ```bash
+  blujust husky-miracast-firewall
+  ```
+* **Další disky pro Steam:** Otevřete aplikaci **Flatseal** → **Steam** → **Filesystem** a přidejte cestu k vašemu hernímu SSD.
+* **Kdyby se po aktualizaci nenačetl nový Flatpak:** Spusťte `bluebuild-flatpak-manager` (systém nově zobrazuje desktopová oznámení při automatické instalaci Flatpaků).
+
+---
+
+## 💿 Generování instalačního ISO
+
+1. Po úpravě `recipes/recipe.yml` vždy **nejprve vyčkejte na dokončení** akce `build-husky-linux` na GitHub Actions (zelená fajfka).
+2. Teprve poté v záložce **Actions** spusťte workflow **build-husky-iso** (*Run workflow*, výchozí `fedora_version: 44`).
+3. Hotový obraz `husky-linux-latest.iso` stáhnete v sekci **Artifacts** na stránce daného běhu.

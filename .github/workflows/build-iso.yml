@@ -9,8 +9,8 @@ on:
         required: true
         type: string
       fedora_version:
-        description: "Verze Fedory (výchozí: 45)"
-        default: "45"
+        description: "Verze Fedory (výchozí: 44)"
+        default: "44"
         required: true
         type: string
 
