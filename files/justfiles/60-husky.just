@@ -25,6 +25,23 @@ husky-setup:
     echo ""
     echo "Hotovo! Odhlaste se a znovu přihlaste (nebo restartujte PC), aby se projevily nové skupiny."
 
+# Zaevidování MOK klíčů pro Secure Boot (NVIDIA + OpenRazer najednou) - heslo v MokManageru: bluebuild
+husky-secureboot:
+    #!/usr/bin/bash
+    set -euo pipefail
+    ENROLLMENT_PASSWORD="bluebuild"
+    BLUEBUILD_KEY="/etc/pki/akmods/certs/akmods-blue-build.der"
+    HUSKY_KEY="/etc/pki/akmods/certs/husky-mok.der"
+    echo "=== Husky Linux: Příprava MOK klíčů pro Secure Boot (NVIDIA + OpenRazer) ==="
+    sudo mokutil --timeout -1
+    printf '%s\n%s\n' "${ENROLLMENT_PASSWORD}" "${ENROLLMENT_PASSWORD}" | sudo mokutil --import "${BLUEBUILD_KEY}" "${HUSKY_KEY}"
+    echo ""
+    echo "[OK] Oba certifikáty (BlueBuild NVIDIA + Husky Linux OpenRazer) jsou připraveny k zápisu."
+    echo "Po restartu PC se zobrazí modrá obrazovka MokManager:"
+    echo "  1. Zvolte 'Enroll MOK' -> 'Continue' -> 'Yes'"
+    echo "  2. Zadejte heslo: bluebuild"
+    echo "  3. Zvolte 'Reboot'"
+
 # Povolení portů ve firewallu pro bezdrátové zrcadlení na TV (Miracast / GNOME Network Displays)
 husky-miracast-firewall:
     #!/usr/bin/bash

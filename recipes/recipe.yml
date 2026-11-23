@@ -27,14 +27,22 @@ modules:
         - git
         - zsh
 
-  - type: script
-    scripts:
-      - install-openrazer.sh
-
   - type: files
     files:
       - source: system
         destination: /
+
+  - type: script
+    env:
+      PUBLIC_KEY_DER_PATH: /etc/pki/akmods/certs/husky-mok.der
+    secrets:
+      - type: file
+        source: ./MOK.priv
+        mount:
+          type: file
+          destination: /tmp/certs/private_key.priv
+    scripts:
+      - install-openrazer.sh
 
   - type: justfiles
     validate: true

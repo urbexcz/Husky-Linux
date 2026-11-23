@@ -39,9 +39,19 @@ Tento jediný příkaz automaticky:
 
 Poté se odhlaste a znovu přihlaste (nebo restartujte PC).
 
-### Poznámka k Secure Bootu (pokud jej máte zapnutý kvůli Windows 11)
-* Pro zavedení podepsaného ovladače **NVIDIA** spusťte jednou `blujust enroll-secure-boot-key` a po restartu v modrém menu *MokManager* zadejte heslo **`bluebuild`**.
-* **Upozornění k OpenRazeru:** Lokálně zkompilovaný jaderný modul `kmod-openrazer` není podepsaný klíčem BlueBuild. Se **vypnutým Secure Bootem** funguje vše ihned bez omezení; se zapnutým Secure Bootem jádro nepodepsaný modul OpenRazeru odmítne zavést (myš funguje jako standardní USB HID, ale Polychromatic ji neuvidí).
+### Secure Boot (pokud jej máte zapnutý kvůli Windows 11 – funguje NVIDIA i OpenRazer)
+Oba jaderné ovladače (**NVIDIA** i **OpenRazer**) jsou kryptograficky podepsané pro Secure Boot. Pro jejich jednorázové zapsání do UEFI spusťte jediný příkaz:
+
+```bash
+blujust husky-secureboot
+```
+
+Po restartu PC se zobrazí modrá obrazovka *MokManager*:
+1. Zvolte **Enroll MOK** → **Continue** → **Yes**.
+2. Zadejte heslo **`bluebuild`** *(stejné na české i anglické klávesnici – neobsahuje Y ani Z)*.
+3. Zvolte **Reboot**.
+
+Po tomto jednom restartu běží **Secure Boot, NVIDIA RTX 4060 i OpenRazer (Razer DeathAdder V2 Pro)** plnohodnotně a bez omezení.
 
 ### Další volitelné příkazy
 * **Miracast (GNOME Network Displays):** Pokud používáte bezdrátové zrcadlení na TV přes Wi-Fi Direct, povolte jednorázově porty ve firewallu:

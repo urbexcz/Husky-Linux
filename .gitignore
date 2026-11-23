@@ -1,6 +1,9 @@
 # Bezpečnost: nikdy necommitovat privátní klíče!
 *.key
+*.priv
+*.b64
 cosign.key
+MOK.priv
 
 # Velké obrazy a binárky
 *.iso
