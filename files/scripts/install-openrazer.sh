@@ -102,3 +102,7 @@ echo "=== OpenRazer kernel modules built, signed, and verified ==="
 
 dnf remove -y akmod-openrazer akmods kernel-devel kernel-headers
 rm -f /etc/yum.repos.d/terra.repo
+
+echo "=== Ensuring first-boot wizard (initial-setup) triggers for user creation ==="
+touch /.unconfigured
+

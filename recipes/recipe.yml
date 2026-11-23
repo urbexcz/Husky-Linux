@@ -15,6 +15,9 @@ modules:
         - https://raw.githubusercontent.com/terrapkg/subatomic-repos/main/terra.repo
     install:
       packages:
+        - initial-setup
+        - initial-setup-gui
+        - initial-setup-gui-wayland-plasma
         - ckb-next
         - lact
         - gpu-screen-recorder
@@ -36,6 +39,12 @@ modules:
     files:
       - source: system
         destination: /
+
+  - type: kargs
+    kargs:
+      - rd.driver.blacklist=nouveau
+      - modprobe.blacklist=nouveau
+      - nvidia-drm.modeset=1
 
   - type: script
     env:
@@ -59,6 +68,8 @@ modules:
       enabled:
         - ckb-next-daemon.service
         - lactd.service
+        - initial-setup.service
+        - initial-setup-graphical.service
     user:
       enabled:
         - openrazer-daemon.service
@@ -76,5 +87,7 @@ modules:
           - app.polychromatic.controller
           - org.videolan.VLC
           - io.github.flattool.Warehouse
+
+  - type: initramfs
 
   - type: signing
