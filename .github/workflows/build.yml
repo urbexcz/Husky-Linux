@@ -1,20 +1,22 @@
-name: build-husky-linux
+name: bluebuild
 
 on:
   schedule:
-    - cron: "00 17 * * *" # Automatické denní sestavení v 17:00 UTC po aktualizacích upstreamu
+    - cron: "00 17 * * *" # Build daily at 17:00 UTC
   push:
-    branches:
-      - main
     paths-ignore:
       - "**.md"
       - ".gitignore"
-      - "LICENSE"
-  workflow_dispatch: # Možnost spustit ručně tlačítkem v GitHub Actions
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   bluebuild:
-    name: Build Husky Linux Image
+    name: Build Custom Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -26,41 +28,11 @@ jobs:
         recipe:
           - recipe.yml
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Extract MOK kernel signing key
-        shell: bash
-        env:
-          MOK_PRIVATE_KEY: ${{ secrets.MOK_PRIVATE_KEY }}
-        run: |
-          if [ -z "${MOK_PRIVATE_KEY}" ]; then
-            echo "::error::Chybí GitHub Secret MOK_PRIVATE_KEY nutný pro podepsání OpenRazer modulů pro Secure Boot!"
-            exit 1
-          fi
-          if printf '%s' "${MOK_PRIVATE_KEY}" | grep -q "BEGIN.*PRIVATE KEY"; then
-            printf '%s\n' "${MOK_PRIVATE_KEY}" | tr -d '\r' > MOK.priv
-          else
-            printf '%s' "${MOK_PRIVATE_KEY}" | tr -d '[:space:]' | base64 -d > MOK.priv
-          fi
-          chmod 600 MOK.priv
-          openssl pkey -in MOK.priv -noout
-          PUB_FROM_PRIV="$(openssl pkey -in MOK.priv -pubout | openssl sha256)"
-          PUB_FROM_DER="$(openssl x509 -inform DER -in files/system/etc/pki/akmods/certs/husky-mok.der -pubkey -noout | openssl sha256)"
-          if [ "${PUB_FROM_PRIV}" != "${PUB_FROM_DER}" ]; then
-            echo "::error::MOK_PRIVATE_KEY neodpovídá veřejnému certifikátu husky-mok.der!"
-            exit 1
-          fi
-          echo "MOK private key verified against husky-mok.der!"
-
-      - name: Build and Push Custom Image
-        uses: blue-build/github-action@v1.14.0
+      - name: Build Custom Image
+        uses: blue-build/github-action@v1
         with:
           recipe: ${{ matrix.recipe }}
           cosign_private_key: ${{ secrets.SIGNING_SECRET }}
-          registry_token: ${{ secrets.GITHUB_TOKEN }}
+          registry_token: ${{ github.token }}
           pr_event_number: ${{ github.event.number }}
-          skip_checkout: true
           maximize_build_space: true

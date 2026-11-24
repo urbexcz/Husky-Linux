@@ -1,92 +1,25 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 ---
 name: husky-linux
-description: Husky Linux - stabilní atomická distribuce (Fedora 44 Kinoite, KDE Plasma 6, NVIDIA open drivers, gaming & dev)
+description: Husky Linux - cisty herni a pracovni system (Fedora 45 Kinoite, KDE Plasma, NVIDIA Open)
 base-image: ghcr.io/blue-build/base-images/fedora-kinoite-nvidia-open
-image-version: 44
+image-version: 45
 
 modules:
   - type: dnf
-    repos:
-      cleanup: true
-      copr:
-        - ilyaz/LACT
-      files:
-        - https://raw.githubusercontent.com/terrapkg/subatomic-repos/main/terra.repo
     install:
       packages:
-        - initial-setup
-        - initial-setup-gui
-        - initial-setup-gui-wayland-plasma
+        - git
         - ckb-next
-        - lact
-        - gpu-screen-recorder
-        - gpu-screen-recorder-gtk
-        - gnome-network-displays
+        - openrgb
         - steam-devices
         - gamemode
-        - gamescope
         - mangohud
-        - goverlay
-        - nvtop
-        - btop
-        - fastfetch
-        - distrobox
-        - git
-        - zsh
-
-  - type: files
-    files:
-      - source: system
-        destination: /
-
-  - type: kargs
-    kargs:
-      - rd.driver.blacklist=nouveau
-      - modprobe.blacklist=nouveau
-      - nvidia-drm.modeset=1
-
-  - type: script
-    env:
-      PUBLIC_KEY_DER_PATH: /etc/pki/akmods/certs/husky-mok.der
-    secrets:
-      - type: file
-        source: ./MOK.priv
-        mount:
-          type: file
-          destination: /tmp/certs/private_key.priv
-    scripts:
-      - install-openrazer.sh
-
-  - type: justfiles
-    validate: true
-    include:
-      - 60-husky.just
+        - gamescope
 
   - type: systemd
     system:
       enabled:
         - ckb-next-daemon.service
-        - lactd.service
-        - initial-setup.service
-    user:
-      enabled:
-        - openrazer-daemon.service
-
-  - type: default-flatpaks
-    configurations:
-      - scope: system
-        notify: true
-        install:
-          - com.valvesoftware.Steam
-          - org.freedesktop.Platform.VulkanLayer.MangoHud//26.08
-          - org.freedesktop.Platform.VulkanLayer.gamescope//26.08
-          - net.davidotek.pupgui2
-          - com.github.tchx84.Flatseal
-          - app.polychromatic.controller
-          - org.videolan.VLC
-          - io.github.flattool.Warehouse
-
-  - type: initramfs
 
   - type: signing
