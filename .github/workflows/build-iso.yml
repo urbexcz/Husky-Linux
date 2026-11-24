@@ -42,6 +42,16 @@ jobs:
           variant: Kinoite
           iso_name: husky-linux-${{ github.event.inputs.image_tag }}.iso
 
+      - name: Publish ISO to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: iso
+          name: "Husky Linux Installer ISO"
+          body: "Instalační ISO obraz pro Husky Linux (Fedora 45 Kinoite, Nvidia Open)."
+          files: |
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}-CHECKSUM
+
       - name: Upload ISO as Artifact
         uses: actions/upload-artifact@v4
         with:
