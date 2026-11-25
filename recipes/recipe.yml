@@ -16,6 +16,7 @@ modules:
         - gamemode
         - mangohud
         - gamescope
+        - fastfetch
 
   - type: systemd
     system:
